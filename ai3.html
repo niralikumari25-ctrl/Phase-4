@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Quiz Helper 🤖</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+
+    .container {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #667eea;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #4b5bdc;
+    }
+
+    #output {
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .card {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .answer {
+      display: none;
+      margin-top: 10px;
+      color: green;
+    }
+
+    .show-btn {
+      margin-top: 10px;
+      background: #28a745;
+    }
+
+    .show-btn:hover {
+      background: #1e7e34;
+    }
+
+    @media (max-width: 500px) {
+      h1 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>🤖 AI Quiz Helper</h1>
+
+  <input type="text" id="topic" placeholder="Enter topic (e.g. JavaScript)">
+  <button id="generate">Generate Question</button>
+
+  <div id="output"></div>
+</div>
+
+<script>
+const API_KEY = "AIzaSyA1FNy6HOEgs7MauhsTfxZO-dbVXpOEW-U";
+
+const btn = document.getElementById("generate");
+const output = document.getElementById("output");
+
+btn.addEventListener("click", async () => {
+  const topic = document.getElementById("topic").value;
+
+  if (!topic) return alert("Enter topic");
+
+  output.innerHTML = "Loading... ⏳";
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: `Give 1 simple question and answer on ${topic}.
+Return JSON:
+{
+  "question": "...",
+  "answer": "..."
+}`
+            }]
+          }]
+        })
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error("API Error");
+    }
+
+    const data = await res.json();
+
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    const cleaned = text.replace(/```json|```/g, "").trim();
+
+    const { question, answer } = JSON.parse(cleaned);
+
+    output.innerHTML = `
+      <div class="card">
+        <h3>Question:</h3>
+        <p>${question}</p>
+
+        <button class="show-btn">Show Answer</button>
+
+        <p class="answer">${answer}</p>
+      </div>
+    `;
+    document.querySelector(".show-btn").addEventListener("click", () => {
+      document.querySelector(".answer").style.display = "block";
+    });
+
+  } catch (err) {
+    console.log(err);
+    output.innerHTML = "Error loading ❌";
+  }
+});
+</script>
+
+</body>
+</html>
