@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joke Generator 😂</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #ffcc00;
+            color: black;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #ffdb4d;
+        }
+
+        p {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        @media (max-width: 500px) {
+            .container {
+                padding: 20px;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>😂 Joke Generator</h1>
+    
+    <button id="btn">Get Joke</button>
+    
+    <p id="joke">Click button to get a joke...</p>
+</div>
+
+<script>
+const btn = document.getElementById("btn");
+
+const getJoke = async () => {
+  try {
+    document.getElementById("joke").innerText = "Loading... ⏳";
+
+    const res = await fetch("https://official-joke-api.appspot.com/random_joke");
+
+    if (!res.ok) throw new Error("API Error");
+
+    const data = await res.json();
+
+    document.getElementById("joke").innerText =
+      `${data.setup} - ${data.punchline}`;
+
+  } catch (err) {
+    console.log(err);
+    document.getElementById("joke").innerText = "Failed to load joke ";
+  }
+};
+
+btn.addEventListener("click", getJoke);
+</script>
+
+</body>
+</html>
